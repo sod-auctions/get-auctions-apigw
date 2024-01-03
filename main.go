@@ -27,31 +27,19 @@ func init() {
 	}
 }
 
-func getIntervalAndLimit(rangeParam string) (int, int) {
-	var interval, limit int
-
+func getLimit(rangeParam string) int {
 	switch rangeParam {
 	case "1d":
-		interval = 1
-		limit = 24
+		return 24
 	case "1w":
-		interval = 1
-		limit = 168
+		return 168
 	case "1m":
-		interval = 6
-		limit = 124
+		return 744
 	case "3m":
-		interval = 12
-		limit = 186
-	case "max":
-		interval = 24
-		limit = 1825
+		return 2232
 	default:
-		interval = 0
-		limit = 0
+		return 0
 	}
-
-	return interval, limit
 }
 
 type Auction struct {
@@ -72,10 +60,9 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 	itemId, _ := strconv.Atoi(event.QueryStringParameters["itemId"])
 	rangeParam, _ := event.QueryStringParameters["range"]
 
-	interval, limit := getIntervalAndLimit(rangeParam)
+	limit := getLimit(rangeParam)
 
-	auctions, err := database.GetAuctions(
-		int16(interval), int16(realmId), int16(auctionHouseId), int32(itemId), int16(limit))
+	auctions, err := database.GetAuctions(1, int16(realmId), int16(auctionHouseId), int32(itemId), int16(limit))
 	if err != nil {
 		log.Printf("An error occurred: %v\n", err)
 
